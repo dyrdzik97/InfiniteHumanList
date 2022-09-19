@@ -5,7 +5,7 @@ import InfiniteHumanList from './components/InfiniteHumanList/InfiniteHumanList'
 const App = () => {
   return (
     <>
-    <InfiniteHumanList />/
+      <InfiniteHumanList />/
     </>
   );
 }

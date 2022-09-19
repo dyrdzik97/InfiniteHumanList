@@ -1,4 +1,4 @@
-import { FC, RefObject } from "react";
+import { FC } from "react";
 import './InfiniteHumanList.scss';
 
 export interface ISinglePersonProps {
@@ -7,7 +7,7 @@ export interface ISinglePersonProps {
         surname: string;
         mail: string;
     },
-    ref?: RefObject<HTMLDivElement>
+    ref?: (node?: Element | null | undefined) => void
 }
 
 const SinglePerson: FC<ISinglePersonProps> = ({ person, ref }) => {

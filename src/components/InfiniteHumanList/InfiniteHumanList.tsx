@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SinglePerson from './SinglePerson';
 import generatePerson from './useGeneratePerson';
 import './InfiniteHumanList.scss'
 import Loader from './Loader';
-import useIntersectionObserver from '../../hooks/useIntersectionOberver';
+import { useInView } from 'react-intersection-observer';
 
 const InfiniteHumanList = () => {
     const [data, setData] = useState([{
@@ -11,7 +11,6 @@ const InfiniteHumanList = () => {
         surname: '',
         mail: ''
     }]);
-    const [page, setPage] = useState(1);
     const [isFetching, setIsFetching] = useState(false);
     
     const numberOfPersons = 20;
@@ -22,48 +21,28 @@ const InfiniteHumanList = () => {
     }
 
     const moreData = () => {
+        setIsFetching(true);
         setTimeout(() => {
-            console.warn('timeout');
-            
             setData([...data, ...generatePerson(numberOfPersons)]);
-            setPage(page + 1); // niepotrzebe przy intersextion observer
             setIsFetching(false);
         }, 1000) 
-
-        console.warn('after timeout');
     };
 
-    const isScrolling = () => {
-      // useIntersectionObserver
-      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight){
-
-        // console.warn('inside scroll', window.innerHeight, document.documentElement.scrollTop, document.documentElement.offsetHeight);
-
-        return;
-      }
-      setIsFetching(true);
-      console.warn('isscroll');
-    }
+    const { ref, inView } = useInView({
+        initialInView: true,
+        threshold: 1,
+    });
     
     useEffect(() => {
       loadData();
-      window.addEventListener('scroll', isScrolling);
-      return () => window.removeEventListener('scroll', isScrolling);
     }, [])
   
     useEffect(() => {        
-        if (isFetching){
+        if (inView){
             moreData();
         }
-    }, [isFetching, data]);
-
-    const ref = useRef<HTMLDivElement | null>(null)
-    const entry = useIntersectionObserver(ref, {threshold: 1})
-    const isVisible = !!entry?.isIntersecting
-  
-    console.log(`Render Section`, { isVisible, int: entry?.isIntersecting, ref })
-
-  
+    }, [isFetching, inView]);  
+    
     return (
       <div>
         {
@@ -73,19 +52,16 @@ const InfiniteHumanList = () => {
         <div className='human-list'>
             <div ref={ref}>
                 {
-                    data.map((person, index) => {
+                    data.map((person) => {
                         return (
                             <SinglePerson
-                                // ref={ref}
                                 person={person}
                             />
                         )
                     })
                 }
             </div>
-            <div className='page-number'>
-                {page}
-            </div>
+            <div style={{width: '100%', display: 'block'}} id="followed" ref={ref} />
         </div>
         <div className='footer'>
             this is my cool footer
